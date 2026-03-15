@@ -3,100 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Family Trip to Hokkaido 2026</title>
-    
+    <title>Hokkaido 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'snow-white': '#F0FFFF',
-                        'ice-blue': '#B3E5FC',
-                        'light-snow-blue': '#E5F3F7', 
-                        'deep-sea-blue': '#01579B', 
-                        'accent-yellow': '#FFD54F', 
-                        'soft-gray': '#F5F5F5'
-                    }
-                }
-            }
-        }
-    </script>
-    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
-        body { background-color: #E5F3F7; font-family: 'Noto Sans TC', sans-serif; color: #334155; }
-        .app-container { max-width: 480px; margin: 0 auto; min-height: 100vh; background-color: #ffffff; box-shadow: 0 0 30px rgba(0, 0, 0, 0.05); position: relative; padding-bottom: 90px; }
-        .header-bg { background-color: #ffffff; padding: 0; position: relative; overflow: hidden; border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; z-index: 10; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); }
-        .header-image-container { width: 100%; height: 250px; overflow: hidden; border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; }
-        .header-image-container img { width: 100%; height: 100%; object-fit: cover; }
-        .snow-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="%23fff" opacity="0.8"/><circle cx="20" cy="80" r="0.5" fill="%23fff" opacity="0.6"/><circle cx="70" cy="30" r="1.5" fill="%23fff" opacity="0.9"/></svg>'); background-size: 100px 100px; animation: snowfall 10s linear infinite; }
-        @keyframes snowfall { to { background-position: 100px 100px; } }
-        
-        .side-tab-bar { position: absolute; bottom: 45px; right: 16px; z-index: 30; display: flex; flex-direction: row; gap: 8px; }
-        
-        /* 單一按鈕樣式 */
-        .tab-button { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.125rem; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); transition: all 0.2s ease; background-color: #ffffff; color: #B3E5FC; cursor: pointer; border: none; outline: none; }
-        .tab-button.active { background-color: #01579B; color: #ffffff; box-shadow: 0 6px 15px rgba(1, 87, 155, 0.4); transform: scale(1.05); }
-
-        .app-main { padding-top: 25px !important; position: relative; z-index: 5; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+        body { background-color: #E5F3F7; font-family: 'Noto Sans TC', sans-serif; }
+        .app-container { max-width: 480px; margin: 0 auto; min-height: 100vh; background-color: #ffffff; position: relative; padding-bottom: 90px; }
+        .header-bg { background-color: #ffffff; position: relative; border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .header-img { width: 100%; height: 250px; object-fit: cover; }
+        .side-tab-bar { position: absolute; bottom: 20px; right: 16px; display: flex; gap: 8px; z-index: 50; }
+        .tab-btn { width: 40px; height: 40px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: #B3E5FC; transition: 0.3s; }
+        .tab-btn.active { background: #01579B; color: white; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .card-shadow { box-shadow: 0 4px 20px rgba(179, 229, 252, 0.3); }
-        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .note-content { max-height: 2.5rem; overflow: hidden; }
-        .note-content.expanded { max-height: 500px; }
-        .expenses-banner { background: linear-gradient(135deg, #01579B 0%, #0097A7 100%); }
-        .date-selector-sticky { background-color: #ffffff; border-bottom: 1px solid #f0f0f0; z-index: 20; top: 0; }
-        
-        /* 封面頁專屬樣式 */
-        .landing-page { position: fixed; inset: 0; background-color: #ffffff; z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .start-btn { position: absolute; bottom: 80px; width: 85%; background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); padding: 20px; border-radius: 99px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); font-weight: bold; font-size: 1.25rem; transition: 0.3s; z-index: 1000; border: 1px solid white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; text-decoration: none; color: #334155; }
-        .fade-exit-active { transition: opacity 0.5s ease; }
-        .fade-exit-to { opacity: 0; }
-        
-        .modal-overlay { position: fixed; inset: 0; background-color: rgba(0,0,0,0.5); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; }
     </style>
 </head>
 <body>
 
 <div id="app" class="app-container">
+    <div v-if="!isStarted" class="fixed inset-0 z-[999] bg-white flex flex-col items-center justify-center">
+        <img src="./S__457515012_0.jpg" class="absolute inset-0 w-full h-full object-cover">
+        <button @click="isStarted = true" class="relative mt-[400px] bg-white/90 px-10 py-4 rounded-full shadow-2xl font-bold text-xl text-slate-700">
+            進入北海道之旅
+        </button>
+    </div>
 
-    <transition name="fade-exit">
-        <div v-if="!isStarted" class="landing-page">
-            <img src="./S__457515012_0.jpg" class="w-full h-full object-cover">
-            <button @click="isStarted = true" class="start-btn flex items-center justify-center rounded-full shadow-2xl">
-                <i class="fa-regular fa-snowflake text-ice-blue text-2xl"></i>
-                <span class="text-xl font-bold tracking-widest text-slate-700">點擊開始旅程</span>
-                <i class="fa-regular fa-snowflake text-ice-blue text-2xl"></i>
-            </button>
-        </div>
-    </transition>
-
-    <div v-if="isStarted" class="animate-fade-in">
-        <div class="header-bg relative">
-            <div class="header-image-container relative">
-                <img src="./S__457515012_0.jpg">
-            </div>
-            
-            <div class="snow-layer"></div> 
-            
+    <div v-show="isStarted">
+        <div class="header-bg">
+            <img src="./S__457515012_0.jpg" class="header-img">
             <div class="side-tab-bar">
-                <button v-for="t in ['itinerary', 'info', 'shopping', 'expenses']" :key="t" @click="currentTab = t" :class="{'tab-button': true, 'active': currentTab === t}">
-                    <i :class="getTabIcon(t)"></i>
+                <button v-for="t in tabs" @click="currentTab = t.id" :class="['tab-btn', {active: currentTab === t.id}]">
+                    <i :class="['fa-solid', t.icon]"></i>
                 </button>
             </div>
         </div>
 
-        <main class="p-4 app-main">
-            <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
+        <main class="p-4">
+            <div v-if="currentTab === 'itinerary'">
+                <div class="flex overflow-x-auto hide-scrollbar space-x-3 mb-4 sticky top-0 bg-white py-2 z-20">
+                    <div v-for="(day, idx) in dates" @click="selectedDateIndex = idx" 
+                         :class="['flex-shrink-0 w-14 h-16 rounded-xl border-2 flex flex-col items-center justify-center cursor-pointer', 
+                         selectedDateIndex === idx ? 'bg-deep-sea-blue border-deep-sea-blue text-white' : 'bg-white text-slate-400']">
+                        <span class="text-xs font-bold">{{ day.weekday }}</span>
+                        <span class="text-sm font-bold">{{ day.date }}</span>
+                    </div>
                 </div>
+                <div class="space-y-4">
+                    <div v-for="(item, idx) in currentDayItinerary" class="bg-white rounded-2xl p-4 border shadow-sm relative">
+                        <button @click="deleteItem('itinerary', idx)" class="absolute top-2 right-2 text-slate-300"><i class="fa-solid fa-circle-xmark text-lg"></i></button>
+                        <div class="flex items-center mb-1">
+                            <span class="bg-green-500 w-2 h-2 rounded-full mr-2"></span>
+                            <span class="font-bold text-slate-700">{{ item.name }}</span>
+                        </div>
+                        <p class="text-sm text-slate-500" v-html="item.note.replace(/\n/g, '<br>')"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="currentTab === 'info'" class="space-y-4">
+                <div class="bg-sky-700 text-white p-6 rounded-3xl text-center shadow-lg">
+                    <div class="text-sm opacity-80 mb-1">即時匯率換算 (0.215)</div>
+                    <div class="text-4xl font-bold mb-4">NT$ {{ Math.round(jpyInput * 0.215).toLocaleString() }}</div>
+                    <input v-model.number="jpyInput" type="number" class="w-full p-3 rounded-xl bg-white/20 text-white text-center text-2xl outline-none border border-white/30" placeholder="輸入日幣 ¥">
+                </div>
+            </div>
+
+            <div v-if="currentTab === 'shopping'" class="space-y-3">
+                <div v-for="(item, idx) in shoppingItems" class="bg-white rounded-xl p-4 border flex items-center shadow-sm relative">
+                    <div class="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center mr-3 text-slate-300"><i class="fa-solid fa-bag-shopping text-xl"></i></div>
+                    <div class="flex-1">
+                        <div class="font-bold text-slate-700">{{ item.name }}</div>
+                        <div class="text-pink-500 text-sm font-bold">¥ {{ item.price.toLocaleString() }}</div>
+                    </div>
+                    <button @click="deleteItem('shopping', idx)" class="text-slate-200"><i class="fa-solid fa-circle-xmark text-xl"></i></button>
+                </div>
+            </div>
+
+            <div v-if="currentTab === 'expenses'" class="space-y-3">
+                <div class="bg-gradient-to-r from-blue-800 to-cyan-700 text-white p-6 rounded-3xl text-center shadow-md mb-4">
+                    <div class="text-sm opacity-80 uppercase tracking-widest">Total Expenses</div>
+                    <div class="text-3xl font-bold">NT$ {{ totalExpenses.toLocaleString() }}</div>
+                </div>
+                <div v-for="(exp, idx) in expenses" class="bg-white p-4 border-b flex items-center justify-between">
+                    <div class="font-bold text-slate-700">{{ exp.name }}</div>
+                    <div class="flex items-center">
+                        <span class="font-bold text-slate-600 mr-4">NT$ {{ exp.amount.toLocaleString() }}</span>
+                        <button @click="deleteItem('expenses', idx)" class="text-slate-200"><i class="fa-solid fa-circle-xmark text-xl"></i></button>
+                    </div>
+                </div>
+            </div>
         </main>
 
-        <button v-if="currentTab !== 'info'" @click="openAddModal" class="fixed bottom-6 right-6 w-14 h-14 bg-accent-yellow rounded-full fab-shadow text-deep-sea-blue text-2xl z-40">
+        <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
+            <div class="bg-white rounded-3xl p-6 w-80 shadow-2xl animate-fade-in">
+                <h3 class="font-bold text-lg mb-4 text-center text-slate-700">新增{{ modalTitle }}</h3>
+                <div class="space-y-4">
+                    <input v-model="newItem.name" placeholder="項目名稱" class="w-full p-3 border rounded-xl outline-none focus:border-blue-400">
+                    <div v-if="currentTab === 'shopping'">
+                        <input v-model.number="newItem.price" type="number" placeholder="金額 (日幣 ¥)" class="w-full p-3 border rounded-xl outline-none">
+                    </div>
+                    <div v-if="currentTab === 'expenses'">
+                        <input v-model.number="newItem.amount" type="number" placeholder="金額 (台幣 NT$)" class="w-full p-3 border rounded-xl outline-none">
+                    </div>
+                    <textarea v-if="currentTab === 'itinerary'" v-model="newItem.note" placeholder="備註內容" class="w-full p-3 border rounded-xl outline-none h-24"></textarea>
+                    <button @click="addItem" class="w-full py-3 bg-sky-800 text-white rounded-xl font-bold shadow-lg">確認新增</button>
+                </div>
+            </div>
+        </div>
+
+        <button v-if="currentTab !== 'info'" @click="showModal = true" class="fixed bottom-6 right-6 w-14 h-14 bg-yellow-400 rounded-full shadow-xl text-sky-900 text-2xl flex items-center justify-center z-50">
             <i class="fa-solid fa-plus"></i>
         </button>
     </div>
@@ -106,36 +123,62 @@
     const { createApp, ref, computed } = Vue;
     createApp({
         setup() {
-            // 控制封面開關
             const isStarted = ref(false);
-            
-            // 以下請完全使用你 Google Docs 裡的 setup() 原始碼內容
             const currentTab = ref('itinerary');
             const selectedDateIndex = ref(0);
+            const jpyInput = ref(0);
             const showModal = ref(false);
+            const newItem = ref({ name: '', note: '', price: 0, amount: 0 });
 
-            const dates = ref([
+            const tabs = [
+                { id: 'itinerary', icon: 'fa-map-location-dot' },
+                { id: 'info', icon: 'fa-circle-info' },
+                { id: 'shopping', icon: 'fa-basket-shopping' },
+                { id: 'expenses', icon: 'fa-coins' }
+            ];
+
+            const dates = [
                 { weekday: '日', date: '3/29' }, { weekday: '一', date: '3/30' },
                 { weekday: '二', date: '3/31' }, { weekday: '三', date: '4/1' },
                 { weekday: '四', date: '4/2' }, { weekday: '五', date: '4/3' },
                 { weekday: '六', date: '4/4' }
-            ]);
+            ];
 
-            // ... 這裡請貼上你原本 docs 裡所有的 itinerariesByDate, shoppingItems, expenses 等數據 ...
+            // 資料庫
+            const itineraryData = ref({ 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] });
+            const shoppingItems = ref([]);
+            const expenses = ref([]);
 
-            const openAddModal = () => {
-                showModal.value = true;
+            // 計算屬性
+            const currentDayItinerary = computed(() => itineraryData.value[selectedDateIndex.value]);
+            const totalExpenses = computed(() => expenses.value.reduce((sum, item) => sum + item.amount, 0));
+            const modalTitle = computed(() => ({ itinerary: '行程', shopping: '清單', expenses: '花費' }[currentTab.value]));
+
+            // 新增功能
+            const addItem = () => {
+                if (!newItem.value.name) return alert('請填寫名稱');
+                
+                if (currentTab.value === 'itinerary') {
+                    itineraryData.value[selectedDateIndex.value].push({ ...newItem.value });
+                } else if (currentTab.value === 'shopping') {
+                    shoppingItems.value.push({ ...newItem.value });
+                } else if (currentTab.value === 'expenses') {
+                    expenses.value.push({ ...newItem.value });
+                }
+
+                showModal.value = false;
+                newItem.value = { name: '', note: '', price: 0, amount: 0 };
             };
 
-            const getTabIcon = (tab) => {
-                const icons = { itinerary: 'fa-map-location-dot', info: 'fa-circle-info', shopping: 'fa-basket-shopping', expenses: 'fa-coins' };
-                return 'fa-solid ' + icons[tab];
+            // 刪除功能
+            const deleteItem = (type, index) => {
+                if (!confirm('確定要刪除嗎？')) return;
+                if (type === 'itinerary') itineraryData.value[selectedDateIndex.value].splice(index, 1);
+                if (type === 'shopping') shoppingItems.value.splice(index, 1);
+                if (type === 'expenses') expenses.value.splice(index, 1);
             };
 
-            return { 
-                isStarted, currentTab, selectedDateIndex, dates, showModal, openAddModal, getTabIcon
-                /* 請在此回傳你原本 docs 裡所有的變數 */
-            };
+            return { isStarted, currentTab, tabs, dates, selectedDateIndex, jpyInput, itineraryData, shoppingItems, expenses, currentDayItinerary, totalExpenses, showModal, newItem, addItem, deleteItem, modalTitle };
         }
     }).mount('#app');
 </script>

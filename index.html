@@ -4,114 +4,99 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Family Trip to Hokkaido 2026</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'snow-white': '#F0FFFF',
+                        'ice-blue': '#B3E5FC',
+                        'light-snow-blue': '#E5F3F7', 
+                        'deep-sea-blue': '#01579B', 
+                        'accent-yellow': '#FFD54F', 
+                        'soft-gray': '#F5F5F5'
+                    }
+                }
+            }
+        }
+    </script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
         body { background-color: #E5F3F7; font-family: 'Noto Sans TC', sans-serif; color: #334155; }
-        .app-container { max-width: 480px; margin: 0 auto; min-height: 100vh; background-color: #ffffff; position: relative; padding-bottom: 90px; }
-        .header-bg { background-color: #ffffff; position: relative; overflow: hidden; border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; z-index: 10; }
+        .app-container { max-width: 480px; margin: 0 auto; min-height: 100vh; background-color: #ffffff; box-shadow: 0 0 30px rgba(0, 0, 0, 0.05); position: relative; padding-bottom: 90px; }
+        .header-bg { background-color: #ffffff; padding: 0; position: relative; overflow: hidden; border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; z-index: 10; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); }
         .header-image-container { width: 100%; height: 250px; overflow: hidden; border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; }
         .header-image-container img { width: 100%; height: 100%; object-fit: cover; }
-        .side-tab-bar { position: absolute; bottom: 45px; right: 16px; z-index: 30; display: flex; gap: 8px; }
-        .tab-button { width: 40px; height: 40px; border-radius: 99px; display: flex; align-items: center; justify-content: center; background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: #B3E5FC; }
-        .tab-button.active { background-color: #01579B; color: white; }
-        .landing-page { position: fixed; inset: 0; background-color: #ffffff; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .start-btn { position: absolute; bottom: 80px; width: 85%; background: rgba(255,255,255,0.95); padding: 20px; border-radius: 99px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; cursor: pointer; border: 1px solid #eee; }
-        .fade-leave-active { transition: opacity 0.5s ease; }
-        .fade-leave-to { opacity: 0; }
-        /* 彈窗樣式 */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .snow-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="%23fff" opacity="0.8"/><circle cx="20" cy="80" r="0.5" fill="%23fff" opacity="0.6"/><circle cx="70" cy="30" r="1.5" fill="%23fff" opacity="0.9"/></svg>'); background-size: 100px 100px; animation: snowfall 10s linear infinite; }
+        @keyframes snowfall { to { background-position: 100px 100px; } }
+        
+        .side-tab-bar { position: absolute; bottom: 45px; right: 16px; z-index: 30; display: flex; flex-direction: row; gap: 8px; }
+        
+        /* 單一按鈕樣式 */
+        .tab-button { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.125rem; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); transition: all 0.2s ease; background-color: #ffffff; color: #B3E5FC; cursor: pointer; border: none; outline: none; }
+        .tab-button.active { background-color: #01579B; color: #ffffff; box-shadow: 0 6px 15px rgba(1, 87, 155, 0.4); transform: scale(1.05); }
+
+        .app-main { padding-top: 25px !important; position: relative; z-index: 5; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .card-shadow { box-shadow: 0 4px 20px rgba(179, 229, 252, 0.3); }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .note-content { max-height: 2.5rem; overflow: hidden; }
+        .note-content.expanded { max-height: 500px; }
+        .expenses-banner { background: linear-gradient(135deg, #01579B 0%, #0097A7 100%); }
+        .date-selector-sticky { background-color: #ffffff; border-bottom: 1px solid #f0f0f0; z-index: 20; top: 0; }
+        
+        /* 封面頁專屬樣式 */
+        .landing-page { position: fixed; inset: 0; background-color: #ffffff; z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .start-btn { position: absolute; bottom: 80px; width: 85%; background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); padding: 20px; border-radius: 99px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); font-weight: bold; font-size: 1.25rem; transition: 0.3s; z-index: 1000; border: 1px solid white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; text-decoration: none; color: #334155; }
+        .fade-exit-active { transition: opacity 0.5s ease; }
+        .fade-exit-to { opacity: 0; }
+        
+        .modal-overlay { position: fixed; inset: 0; background-color: rgba(0,0,0,0.5); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; }
     </style>
 </head>
 <body>
 
 <div id="app" class="app-container">
-    <transition name="fade">
+
+    <transition name="fade-exit">
         <div v-if="!isStarted" class="landing-page">
             <img src="./S__457515012_0.jpg" class="w-full h-full object-cover">
-            <div @click="isStarted = true" class="start-btn">
-                <span class="text-xl font-bold tracking-widest text-slate-700">點擊進入北海道之旅</span>
-            </div>
+            <button @click="isStarted = true" class="start-btn flex items-center justify-center rounded-full shadow-2xl">
+                <i class="fa-regular fa-snowflake text-ice-blue text-2xl"></i>
+                <span class="text-xl font-bold tracking-widest text-slate-700">點擊開始旅程</span>
+                <i class="fa-regular fa-snowflake text-ice-blue text-2xl"></i>
+            </button>
         </div>
     </transition>
 
-    <div v-show="isStarted">
-        <div class="header-bg">
-            <div class="header-image-container"><img src="./S__457515012_0.jpg"></div>
+    <div v-if="isStarted" class="animate-fade-in">
+        <div class="header-bg relative">
+            <div class="header-image-container relative">
+                <img src="./S__457515012_0.jpg">
+            </div>
+            
+            <div class="snow-layer"></div> 
+            
             <div class="side-tab-bar">
-                <button v-for="t in ['itinerary', 'info', 'shopping', 'expenses']" @click="currentTab = t" :class="['tab-button', {active: currentTab === t}]">
+                <button v-for="t in ['itinerary', 'info', 'shopping', 'expenses']" :key="t" @click="currentTab = t" :class="{'tab-button': true, 'active': currentTab === t}">
                     <i :class="getTabIcon(t)"></i>
                 </button>
             </div>
         </div>
 
-        <main class="p-4">
-            <div v-if="currentTab === 'info'">
-                <div class="bg-deep-sea-blue text-white p-8 rounded-3xl shadow-lg text-center">
-                    <div class="text-sm opacity-70 mb-2">日幣換算台幣 (匯率 0.215)</div>
-                    <div class="text-4xl font-bold mb-6">NT$ {{ Math.round(jpyInput * 0.215).toLocaleString() }}</div>
-                    <input v-model.number="jpyInput" type="number" class="w-full p-4 rounded-2xl bg-white/10 text-white border border-white/30 text-center text-3xl outline-none" placeholder="¥ 輸入日幣">
+        <main class="p-4 app-main">
+            <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
                 </div>
-            </div>
-
-            <div v-if="currentTab === 'itinerary'">
-                <div class="flex overflow-x-auto space-x-3 mb-4 sticky top-0 bg-white py-2 z-20">
-                    <div v-for="(day, index) in dates" @click="selectedDateIndex = index" :class="selectedDateIndex === index ? 'bg-deep-sea-blue text-white' : 'bg-white text-slate-400'" class="flex-shrink-0 w-14 h-16 rounded-xl flex flex-col items-center justify-center border-2 cursor-pointer shadow-sm">
-                        <span class="text-xs font-bold">{{ day.weekday }}</span>
-                        <span class="text-sm font-bold">{{ day.date }}</span>
-                    </div>
-                </div>
-                <div class="space-y-4">
-                    <div v-for="(item, idx) in currentItinerary" class="bg-white rounded-3xl p-5 border shadow-sm relative">
-                        <button @click="deleteItineraryItem(idx)" class="absolute top-4 right-4 text-slate-300"><i class="fa-solid fa-circle-xmark text-xl"></i></button>
-                        <div class="flex items-center mb-2">
-                            <div :class="getCategoryColor(item.category)" class="w-10 h-10 flex items-center justify-center rounded-full text-white mr-3"><i :class="getCategoryIcon(item.category)"></i></div>
-                            <span class="font-bold text-lg text-slate-700">{{ item.name }}</span>
-                        </div>
-                        <p class="text-sm text-slate-500" v-html="item.note.replace(/\n/g, '<br>')"></p>
-                    </div>
-                </div>
-            </div>
-
-            <div v-if="currentTab === 'expenses'">
-                <div class="bg-gradient-to-br from-blue-800 to-blue-500 text-white p-6 rounded-3xl mb-6 shadow-lg text-center">
-                    <div class="text-3xl font-bold">NT$ {{ totalExpenses.toLocaleString() }}</div>
-                </div>
-                <div v-for="(exp, index) in expenses" class="flex items-center p-4 bg-white border-b relative">
-                    <div class="flex-1 font-bold text-slate-700">{{ exp.name }}</div>
-                    <div class="text-right mr-8 font-bold text-slate-700">NT$ {{ exp.amount.toLocaleString() }}</div>
-                    <button @click="deleteExpense(index)" class="absolute right-2 text-slate-300"><i class="fa-solid fa-circle-xmark text-xl"></i></button>
-                </div>
-            </div>
-
-            <div v-if="currentTab === 'shopping'">
-                <div v-for="item in shoppingItems" class="bg-white rounded-2xl p-4 border mb-3 flex items-center relative">
-                    <div class="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center mr-4"><i class="fa-solid fa-bag-shopping text-slate-300"></i></div>
-                    <div class="flex-1">
-                        <div class="font-bold text-slate-700">{{ item.name }}</div>
-                        <div class="text-pink-500 font-bold">¥ {{ item.price.toLocaleString() }}</div>
-                    </div>
-                    <button @click="deleteShoppingItem(item.id)" class="text-slate-300"><i class="fa-solid fa-circle-xmark text-xl"></i></button>
-                </div>
-            </div>
         </main>
 
-        <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
-            <div class="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl">
-                <h3 class="font-bold text-xl mb-4 text-center">新增項目</h3>
-                <div class="space-y-3">
-                    <input v-model="newItem.name" placeholder="名稱" class="w-full p-3 border rounded-xl outline-none">
-                    <input v-if="currentTab === 'expenses'" v-model.number="newItem.amount" type="number" placeholder="金額 (NT$)" class="w-full p-3 border rounded-xl outline-none">
-                    <input v-if="currentTab === 'shopping'" v-model.number="newItem.price" type="number" placeholder="金額 (¥)" class="w-full p-3 border rounded-xl outline-none">
-                    <textarea v-if="currentTab === 'itinerary'" v-model="newItem.note" placeholder="備註" class="w-full p-3 border rounded-xl outline-none"></textarea>
-                    <button @click="confirmAdd" class="w-full py-3 bg-deep-sea-blue text-white rounded-xl font-bold">確認新增</button>
-                </div>
-            </div>
-        </div>
-
-        <button v-if="currentTab !== 'info'" @click="showModal = true" class="fixed bottom-6 right-6 w-14 h-14 bg-accent-yellow rounded-full shadow-lg text-deep-sea-blue text-2xl flex items-center justify-center z-40 transition-transform active:scale-90">
+        <button v-if="currentTab !== 'info'" @click="openAddModal" class="fixed bottom-6 right-6 w-14 h-14 bg-accent-yellow rounded-full fab-shadow text-deep-sea-blue text-2xl z-40">
             <i class="fa-solid fa-plus"></i>
         </button>
     </div>
@@ -121,12 +106,13 @@
     const { createApp, ref, computed } = Vue;
     createApp({
         setup() {
+            // 控制封面開關
             const isStarted = ref(false);
+            
+            // 以下請完全使用你 Google Docs 裡的 setup() 原始碼內容
             const currentTab = ref('itinerary');
             const selectedDateIndex = ref(0);
-            const jpyInput = ref(0);
             const showModal = ref(false);
-            const newItem = ref({ name: '', amount: 0, price: 0, note: '', category: 'spot' });
 
             const dates = ref([
                 { weekday: '日', date: '3/29' }, { weekday: '一', date: '3/30' },
@@ -135,40 +121,21 @@
                 { weekday: '六', date: '4/4' }
             ]);
 
-            const itineraryData = ref({
-                0: [{ id: 1, name: "新千歲機場取車", category: "transport", note: "OTS 租車新千歲店" }],
-                1: [{ id: 2, name: "小樽水族館", category: "spot", note: "企鵝散步冬季限定" }],
-                2:[], 3:[], 4:[], 5:[], 6:[]
-            });
+            // ... 這裡請貼上你原本 docs 裡所有的 itinerariesByDate, shoppingItems, expenses 等數據 ...
 
-            const shoppingItems = ref([{ id: Date.now(), name: "白色戀人", price: 1200 }]);
-            const expenses = ref([{ id: Date.now(), name: "星宇機票", amount: 85000, category: "flight" }]);
-
-            const currentItinerary = computed(() => itineraryData.value[selectedDateIndex.value] || []);
-            const totalExpenses = computed(() => expenses.value.reduce((s, e) => s + e.amount, 0));
-
-            const confirmAdd = () => {
-                if (!newItem.value.name) return alert('請輸入名稱');
-                if (currentTab.value === 'itinerary') {
-                    itineraryData.value[selectedDateIndex.value].push({ id: Date.now(), ...newItem.value });
-                } else if (currentTab.value === 'expenses') {
-                    expenses.value.push({ id: Date.now(), ...newItem.value });
-                } else if (currentTab.value === 'shopping') {
-                    shoppingItems.value.push({ id: Date.now(), ...newItem.value });
-                }
-                showModal.value = false;
-                newItem.value = { name: '', amount: 0, price: 0, note: '', category: 'spot' };
+            const openAddModal = () => {
+                showModal.value = true;
             };
 
-            const deleteItineraryItem = (idx) => { if(confirm('刪除？')) itineraryData.value[selectedDateIndex.value].splice(idx, 1); };
-            const deleteExpense = (idx) => { if(confirm('刪除？')) expenses.value.splice(idx, 1); };
-            const deleteShoppingItem = (id) => { if(confirm('刪除？')) shoppingItems.value = shoppingItems.value.filter(i => i.id !== id); };
+            const getTabIcon = (tab) => {
+                const icons = { itinerary: 'fa-map-location-dot', info: 'fa-circle-info', shopping: 'fa-basket-shopping', expenses: 'fa-coins' };
+                return 'fa-solid ' + icons[tab];
+            };
 
-            const getTabIcon = (t) => 'fa-solid ' + { itinerary: 'fa-map-location-dot', info: 'fa-circle-info', shopping: 'fa-basket-shopping', expenses: 'fa-coins' }[t];
-            const getCategoryIcon = (cat) => 'fa-solid ' + ({ flight: 'fa-plane', transport: 'fa-car', spot: 'fa-camera' }[cat] || 'fa-location-dot');
-            const getCategoryColor = (cat) => ({ flight: 'bg-blue-500', transport: 'bg-slate-500', spot: 'bg-green-500' }[cat] || 'bg-blue-900');
-
-            return { isStarted, currentTab, selectedDateIndex, dates, currentItinerary, totalExpenses, expenses, shoppingItems, deleteItineraryItem, deleteExpense, deleteShoppingItem, jpyInput, getTabIcon, getCategoryIcon, getCategoryColor, showModal, newItem, confirmAdd };
+            return { 
+                isStarted, currentTab, selectedDateIndex, dates, showModal, openAddModal, getTabIcon
+                /* 請在此回傳你原本 docs 裡所有的變數 */
+            };
         }
     }).mount('#app');
 </script>

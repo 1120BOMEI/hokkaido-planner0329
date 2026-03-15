@@ -21,7 +21,8 @@
         .start-btn { position: absolute; bottom: 80px; width: 85%; background: rgba(255,255,255,0.95); padding: 20px; border-radius: 99px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; cursor: pointer; border: 1px solid #eee; }
         .fade-leave-active { transition: opacity 0.5s ease; }
         .fade-leave-to { opacity: 0; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        /* 彈窗樣式 */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; }
     </style>
 </head>
 <body>
@@ -47,79 +48,70 @@
         </div>
 
         <main class="p-4">
+            <div v-if="currentTab === 'info'">
+                <div class="bg-deep-sea-blue text-white p-8 rounded-3xl shadow-lg text-center">
+                    <div class="text-sm opacity-70 mb-2">日幣換算台幣 (匯率 0.215)</div>
+                    <div class="text-4xl font-bold mb-6">NT$ {{ Math.round(jpyInput * 0.215).toLocaleString() }}</div>
+                    <input v-model.number="jpyInput" type="number" class="w-full p-4 rounded-2xl bg-white/10 text-white border border-white/30 text-center text-3xl outline-none" placeholder="¥ 輸入日幣">
+                </div>
+            </div>
+
             <div v-if="currentTab === 'itinerary'">
-                <div class="flex overflow-x-auto hide-scrollbar space-x-3 mb-4 sticky top-0 bg-white py-2 z-20">
-                    <div v-for="(day, index) in dates" :key="index" @click="selectedDateIndex = index"
-                         :class="selectedDateIndex === index ? 'bg-deep-sea-blue text-white' : 'bg-white text-slate-400'"
-                         class="flex-shrink-0 w-14 h-16 rounded-xl flex flex-col items-center justify-center border-2 cursor-pointer shadow-sm transition-all">
+                <div class="flex overflow-x-auto space-x-3 mb-4 sticky top-0 bg-white py-2 z-20">
+                    <div v-for="(day, index) in dates" @click="selectedDateIndex = index" :class="selectedDateIndex === index ? 'bg-deep-sea-blue text-white' : 'bg-white text-slate-400'" class="flex-shrink-0 w-14 h-16 rounded-xl flex flex-col items-center justify-center border-2 cursor-pointer shadow-sm">
                         <span class="text-xs font-bold">{{ day.weekday }}</span>
                         <span class="text-sm font-bold">{{ day.date }}</span>
                     </div>
                 </div>
-
                 <div class="space-y-4">
-                    <div v-for="(item, idx) in currentItinerary" :key="item.id" class="bg-white rounded-3xl p-5 border shadow-sm relative animate-fade-in">
-                        <button @click="deleteItineraryItem(idx)" class="absolute top-4 right-4 text-slate-300 hover:text-red-500 transition-colors">
-                            <i class="fa-solid fa-circle-xmark text-xl"></i>
-                        </button>
-                        
+                    <div v-for="(item, idx) in currentItinerary" class="bg-white rounded-3xl p-5 border shadow-sm relative">
+                        <button @click="deleteItineraryItem(idx)" class="absolute top-4 right-4 text-slate-300"><i class="fa-solid fa-circle-xmark text-xl"></i></button>
                         <div class="flex items-center mb-2">
-                            <div :class="getCategoryColor(item.category)" class="w-10 h-10 flex items-center justify-center rounded-full text-white mr-3">
-                                <i :class="getCategoryIcon(item.category)"></i>
-                            </div>
-                            <span class="font-bold text-lg pr-6 text-slate-700">{{ item.name }}</span>
+                            <div :class="getCategoryColor(item.category)" class="w-10 h-10 flex items-center justify-center rounded-full text-white mr-3"><i :class="getCategoryIcon(item.category)"></i></div>
+                            <span class="font-bold text-lg text-slate-700">{{ item.name }}</span>
                         </div>
-                        <p class="text-sm text-slate-500 leading-relaxed" v-html="item.note.replace(/\n/g, '<br>')"></p>
+                        <p class="text-sm text-slate-500" v-html="item.note.replace(/\n/g, '<br>')"></p>
                     </div>
-                    <div v-if="currentItinerary.length === 0" class="text-center py-10 text-slate-300 italic">本日尚無行程</div>
-                </div>
-            </div>
-
-            <div v-if="currentTab === 'shopping'" class="space-y-3">
-                <div v-for="item in shoppingItems" :key="item.id" class="bg-white rounded-2xl p-4 border flex items-center shadow-sm relative">
-                    <div class="w-16 h-16 bg-slate-100 rounded-xl overflow-hidden mr-4 flex items-center justify-center">
-                        <img v-if="item.image" :src="item.image" class="w-full h-full object-cover">
-                        <i v-else class="fa-solid fa-bag-shopping text-slate-300 text-2xl"></i>
-                    </div>
-                    <div class="flex-1">
-                        <div class="font-bold text-slate-700">{{ item.name }}</div>
-                        <div class="text-xs text-pink-500 font-bold">預估 ¥ {{ item.price.toLocaleString() }}</div>
-                    </div>
-                    <button @click="deleteShoppingItem(item.id)" class="text-slate-300 hover:text-red-500 p-2 transition-colors">
-                        <i class="fa-solid fa-circle-xmark text-xl"></i>
-                    </button>
                 </div>
             </div>
 
             <div v-if="currentTab === 'expenses'">
                 <div class="bg-gradient-to-br from-blue-800 to-blue-500 text-white p-6 rounded-3xl mb-6 shadow-lg text-center">
-                    <div class="text-xs opacity-70 mb-1 uppercase tracking-widest">Estimated Total</div>
-                    <div class="text-3xl font-bold font-mono">NT$ {{ totalExpenses.toLocaleString() }}</div>
+                    <div class="text-3xl font-bold">NT$ {{ totalExpenses.toLocaleString() }}</div>
                 </div>
-                <div class="space-y-1">
-                    <div v-for="(exp, index) in expenses" :key="exp.id" class="flex items-center p-4 bg-white border-b last:border-0">
-                        <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-blue-600 mr-4">
-                            <i :class="getCategoryIcon(exp.category)"></i>
-                        </div>
-                        <div class="flex-1 font-bold text-slate-700">{{ exp.name }}</div>
-                        <div class="text-right mr-4 font-bold text-slate-700">NT$ {{ exp.amount.toLocaleString() }}</div>
-                        <button @click="deleteExpense(index)" class="text-slate-300 hover:text-red-500 p-2">
-                            <i class="fa-solid fa-circle-xmark text-xl"></i>
-                        </button>
-                    </div>
+                <div v-for="(exp, index) in expenses" class="flex items-center p-4 bg-white border-b relative">
+                    <div class="flex-1 font-bold text-slate-700">{{ exp.name }}</div>
+                    <div class="text-right mr-8 font-bold text-slate-700">NT$ {{ exp.amount.toLocaleString() }}</div>
+                    <button @click="deleteExpense(index)" class="absolute right-2 text-slate-300"><i class="fa-solid fa-circle-xmark text-xl"></i></button>
                 </div>
             </div>
-            
-            <div v-if="currentTab === 'info'" class="space-y-6">
-                <div class="bg-deep-sea-blue text-white p-8 rounded-3xl shadow-lg text-center">
-                    <div class="text-sm opacity-70 mb-2">日幣換算台幣 (匯率 0.215)</div>
-                    <div class="text-4xl font-bold mb-6 font-mono">NT$ {{ Math.round(jpyInput * 0.215).toLocaleString() }}</div>
-                    <input v-model="jpyInput" type="number" class="w-full p-4 rounded-2xl bg-white/10 text-white border border-white/30 text-center text-3xl outline-none focus:bg-white/20 transition-all font-mono" placeholder="¥ 輸入金額">
+
+            <div v-if="currentTab === 'shopping'">
+                <div v-for="item in shoppingItems" class="bg-white rounded-2xl p-4 border mb-3 flex items-center relative">
+                    <div class="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center mr-4"><i class="fa-solid fa-bag-shopping text-slate-300"></i></div>
+                    <div class="flex-1">
+                        <div class="font-bold text-slate-700">{{ item.name }}</div>
+                        <div class="text-pink-500 font-bold">¥ {{ item.price.toLocaleString() }}</div>
+                    </div>
+                    <button @click="deleteShoppingItem(item.id)" class="text-slate-300"><i class="fa-solid fa-circle-xmark text-xl"></i></button>
                 </div>
             </div>
         </main>
 
-        <button v-if="currentTab !== 'info'" @click="handleAddClick" class="fixed bottom-6 right-6 w-14 h-14 bg-accent-yellow rounded-full shadow-lg text-deep-sea-blue text-2xl flex items-center justify-center z-40 active:scale-95 transition-transform">
+        <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
+            <div class="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl">
+                <h3 class="font-bold text-xl mb-4 text-center">新增項目</h3>
+                <div class="space-y-3">
+                    <input v-model="newItem.name" placeholder="名稱" class="w-full p-3 border rounded-xl outline-none">
+                    <input v-if="currentTab === 'expenses'" v-model.number="newItem.amount" type="number" placeholder="金額 (NT$)" class="w-full p-3 border rounded-xl outline-none">
+                    <input v-if="currentTab === 'shopping'" v-model.number="newItem.price" type="number" placeholder="金額 (¥)" class="w-full p-3 border rounded-xl outline-none">
+                    <textarea v-if="currentTab === 'itinerary'" v-model="newItem.note" placeholder="備註" class="w-full p-3 border rounded-xl outline-none"></textarea>
+                    <button @click="confirmAdd" class="w-full py-3 bg-deep-sea-blue text-white rounded-xl font-bold">確認新增</button>
+                </div>
+            </div>
+        </div>
+
+        <button v-if="currentTab !== 'info'" @click="showModal = true" class="fixed bottom-6 right-6 w-14 h-14 bg-accent-yellow rounded-full shadow-lg text-deep-sea-blue text-2xl flex items-center justify-center z-40 transition-transform active:scale-90">
             <i class="fa-solid fa-plus"></i>
         </button>
     </div>
@@ -133,6 +125,8 @@
             const currentTab = ref('itinerary');
             const selectedDateIndex = ref(0);
             const jpyInput = ref(0);
+            const showModal = ref(false);
+            const newItem = ref({ name: '', amount: 0, price: 0, note: '', category: 'spot' });
 
             const dates = ref([
                 { weekday: '日', date: '3/29' }, { weekday: '一', date: '3/30' },
@@ -142,50 +136,39 @@
             ]);
 
             const itineraryData = ref({
-                0: [{ id: 1, name: "新千歲機場取車", category: "transport", note: "OTS 租車新千歲店\n記得檢查保險範圍" }],
-                1: [{ id: 2, name: "小樽水族館", category: "spot", note: "企鵝散步冬季限定\n下午一點有一場" }],
-                2: [], 3: [], 4: [], 5: [], 6: []
+                0: [{ id: 1, name: "新千歲機場取車", category: "transport", note: "OTS 租車新千歲店" }],
+                1: [{ id: 2, name: "小樽水族館", category: "spot", note: "企鵝散步冬季限定" }],
+                2:[], 3:[], 4:[], 5:[], 6:[]
             });
 
-            const shoppingItems = ref([
-                { id: 1, name: "六花亭 夾心餅乾", price: 1500, image: "" },
-                { id: 2, name: "北菓樓 開拓泡芙", price: 800, image: "" }
-            ]);
-
-            const expenses = ref([
-                { id: 1, name: "星宇航空機票", amount: 85000, category: "flight" },
-                { id: 2, name: "OTS 租車預約", amount: 15600, category: "transport" }
-            ]);
+            const shoppingItems = ref([{ id: Date.now(), name: "白色戀人", price: 1200 }]);
+            const expenses = ref([{ id: Date.now(), name: "星宇機票", amount: 85000, category: "flight" }]);
 
             const currentItinerary = computed(() => itineraryData.value[selectedDateIndex.value] || []);
             const totalExpenses = computed(() => expenses.value.reduce((s, e) => s + e.amount, 0));
 
-            // 刪除邏輯
-            const deleteItineraryItem = (idx) => { if(confirm('確定刪除這項行程？')) itineraryData.value[selectedDateIndex.value].splice(idx, 1); };
-            const deleteExpense = (index) => { if(confirm('確定刪除這筆花費？')) expenses.value.splice(index, 1); };
-            const deleteShoppingItem = (id) => { shoppingItems.value = shoppingItems.value.filter(i => i.id !== id); };
-            const handleAddClick = () => { alert('已記錄需求：即將開啟新增視窗'); };
-
-            // 圖示與顏色邏輯
-            const getTabIcon = (t) => {
-                const map = { itinerary: 'fa-map-location-dot', info: 'fa-circle-info', shopping: 'fa-basket-shopping', expenses: 'fa-coins' };
-                return 'fa-solid ' + map[t];
-            };
-            const getCategoryIcon = (cat) => {
-                const map = { flight: 'fa-plane', transport: 'fa-car', spot: 'fa-camera', hotel: 'fa-bed', food: 'fa-utensils' };
-                return 'fa-solid ' + (map[cat] || 'fa-location-dot');
-            };
-            const getCategoryColor = (cat) => {
-                const map = { flight: 'bg-blue-500', transport: 'bg-slate-500', spot: 'bg-green-500', hotel: 'bg-indigo-500', food: 'bg-orange-500' };
-                return map[cat] || 'bg-deep-sea-blue';
+            const confirmAdd = () => {
+                if (!newItem.value.name) return alert('請輸入名稱');
+                if (currentTab.value === 'itinerary') {
+                    itineraryData.value[selectedDateIndex.value].push({ id: Date.now(), ...newItem.value });
+                } else if (currentTab.value === 'expenses') {
+                    expenses.value.push({ id: Date.now(), ...newItem.value });
+                } else if (currentTab.value === 'shopping') {
+                    shoppingItems.value.push({ id: Date.now(), ...newItem.value });
+                }
+                showModal.value = false;
+                newItem.value = { name: '', amount: 0, price: 0, note: '', category: 'spot' };
             };
 
-            return { 
-                isStarted, currentTab, selectedDateIndex, dates, currentItinerary, 
-                totalExpenses, expenses, shoppingItems, deleteItineraryItem, 
-                deleteExpense, deleteShoppingItem, handleAddClick, jpyInput, 
-                getTabIcon, getCategoryIcon, getCategoryColor 
-            };
+            const deleteItineraryItem = (idx) => { if(confirm('刪除？')) itineraryData.value[selectedDateIndex.value].splice(idx, 1); };
+            const deleteExpense = (idx) => { if(confirm('刪除？')) expenses.value.splice(idx, 1); };
+            const deleteShoppingItem = (id) => { if(confirm('刪除？')) shoppingItems.value = shoppingItems.value.filter(i => i.id !== id); };
+
+            const getTabIcon = (t) => 'fa-solid ' + { itinerary: 'fa-map-location-dot', info: 'fa-circle-info', shopping: 'fa-basket-shopping', expenses: 'fa-coins' }[t];
+            const getCategoryIcon = (cat) => 'fa-solid ' + ({ flight: 'fa-plane', transport: 'fa-car', spot: 'fa-camera' }[cat] || 'fa-location-dot');
+            const getCategoryColor = (cat) => ({ flight: 'bg-blue-500', transport: 'bg-slate-500', spot: 'bg-green-500' }[cat] || 'bg-blue-900');
+
+            return { isStarted, currentTab, selectedDateIndex, dates, currentItinerary, totalExpenses, expenses, shoppingItems, deleteItineraryItem, deleteExpense, deleteShoppingItem, jpyInput, getTabIcon, getCategoryIcon, getCategoryColor, showModal, newItem, confirmAdd };
         }
     }).mount('#app');
 </script>
